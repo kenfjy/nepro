@@ -15,6 +15,7 @@
 #define SOCK_MAX 4
 
 int makesock(char *service);
+uint32_t randomHash();
 
 int main(int argc, char *argv[]) {
 	if (argv[1] == NULL) {
@@ -25,8 +26,7 @@ int main(int argc, char *argv[]) {
 	int fd[SOCK_MAX + 1];
 	int sockCount = 0;
 	fd_set fdsets;
-	//uint32_t block;
-	//char userstream[UINT32_MAX];
+	uint32_t block[SOCK_MAX+1];
 	char userstream[SOCK_MAX+1][BUFSIZE];
 	char message[BUFSIZE];
 	int i;
@@ -56,14 +56,6 @@ int main(int argc, char *argv[]) {
 	sl = sizeof(ss);
 
 	sockCount = 1;
-
-/*
-	fd[1] = accept(fd[0], (struct sockaddr *)&ss, &sl);
-	if (fd[1]<0) {
-		fprintf(stderr,"socket error: %s(%d)\n", gai_strerror(fd[1]),fd[1]);
-		return 0;
-	}
-	*/
 
 	while(1) {
 		FD_ZERO(&fdsets);
@@ -106,8 +98,14 @@ int main(int argc, char *argv[]) {
 						printf("fd[%d] read error\n", i);
 					} else if (msg_length > 0) {
 						printf("fd[%d] input: %s", i, userstream[i]);
-						strcpy(userstream[i], "your message was accepted\n");
-						write(fd[i], userstream[i], strlen(userstream[i]));
+						block[i] = randomHash();
+						printf("randomHash() create the next number: %u\n", block[i]);
+						sprintf(userstream[i], "%u", block[i]);
+						write(fd[i], userstream[i], sizeof(userstream[i]));
+						/*
+						block[i] = randomHash();
+						write(fd[i], *(block[i]), sizeof(block[i]));
+						*/
 					} else {
 						printf("fd[%d] closed", i);
 						close(fd[i]);
@@ -159,3 +157,10 @@ int makesock(char *service) {
 	return -1;
 }
 
+uint32_t randomHash() {
+	int d = UINT32_MAX / RAND_MAX;
+	int m = UINT32_MAX % RAND_MAX + 1;
+	srand((int)time(NULL));
+	uint32_t number = (uint32_t)(rand()*d + rand()%m);
+	return number;
+}
