@@ -105,9 +105,17 @@ int main(int argc, char *argv[]) {
 						for (k=0; k<22; k++) {
 							block[i] = randomHash();
 							printf("randomHash() create the next number: %u\n", block[i]);
+							block[i] = block[i] | 0x00000000;
+							sprintf(userstream[i], "%x", htonl(block[i]));
+							printf("this is HEX!!! %s\n", userstream[i]);
+							block[i] = strtol(userstream[i], NULL, 16);
+							block[i] = ntohl(block[i]);
+							printf("hex code for something(return): %u\n", block[i]);
+
+							/*
+							printf("randomHash() create the next number: %u\n", block[i]);
 							sprintf(userstream[i], "%u", htonl(block[i]));
 							printf("randomHash() created the next number(network byte order): %u\n", ntohl(block[i]));
-							//write(fd[i], userstream[i], sizeof(uint32_t)*CHAR_BIT);
 							block[i] = block[i] | 0x00000000;
 							printf("hex code for something: %x\n", block[i]);
 							sprintf(userstream[i], "%x", htonl(block[i]));
@@ -115,6 +123,7 @@ int main(int argc, char *argv[]) {
 							uint32_t hello = strtol(userstream[i], NULL, 16);
 							printf("hex code for something(return): %d\n", ntohl(hello));
 							write(fd[i],userstream[i], strlen(userstream[i]));
+							*/
 						}
 					} else {
 						printf("fd[%d] closed\n", i);
