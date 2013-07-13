@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <time.h>
 #include <sys/select.h>
+#include <limits.h>
 
 #define BUFSIZE 1024
 #define SOCK_MAX 4
@@ -18,6 +19,7 @@ int makesock(char *service);
 uint32_t randomHash();
 
 int main(int argc, char *argv[]) {
+	srand((int)time(NULL));
 	if (argv[1] == NULL) {
 		puts("missing parameters");
 		return 0;
@@ -78,9 +80,9 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr,"socket error: %s(%d)\n", gai_strerror(fd[sockCount]), fd[sockCount]);
 			}
 			if (sockCount <= SOCK_MAX) {
-				printf("new user accepted: %d", sockCount);
+				printf("new user accepted: %d\n", sockCount);
 				strcpy(message, "you have joined the game!\n");
-				write(fd[sockCount], message, sizeof(message));
+				write(fd[sockCount], (const void *)message, sizeof(message));
 				sockCount++;
 			} else {
 				printf("too many user has tried to connect\n");
@@ -97,17 +99,25 @@ int main(int argc, char *argv[]) {
 					if ((msg_length = read(fd[i], userstream[i], sizeof(userstream[i]))) == -1) {
 						printf("fd[%d] read error\n", i);
 					} else if (msg_length > 0) {
-						printf("fd[%d] input: %s", i, userstream[i]);
-						block[i] = randomHash();
-						printf("randomHash() create the next number: %u\n", block[i]);
-						sprintf(userstream[i], "%u", block[i]);
-						write(fd[i], userstream[i], sizeof(userstream[i]));
-						/*
-						block[i] = randomHash();
-						write(fd[i], *(block[i]), sizeof(block[i]));
-						*/
+						block[i] = ntohl(atoi(userstream[i]));
+						printf("fd[%d] input: %s\n", i, userstream[i]);
+						int k=0;
+						for (k=0; k<22; k++) {
+							block[i] = randomHash();
+							printf("randomHash() create the next number: %u\n", block[i]);
+							sprintf(userstream[i], "%u", htonl(block[i]));
+							printf("randomHash() created the next number(network byte order): %u\n", ntohl(block[i]));
+							//write(fd[i], userstream[i], sizeof(uint32_t)*CHAR_BIT);
+							block[i] = block[i] | 0x00000000;
+							printf("hex code for something: %x\n", block[i]);
+							sprintf(userstream[i], "%x", htonl(block[i]));
+							printf("this is HEX!!! %s\n", userstream[i]);
+							uint32_t hello = strtol(userstream[i], NULL, 16);
+							printf("hex code for something(return): %d\n", ntohl(hello));
+							write(fd[i],userstream[i], strlen(userstream[i]));
+						}
 					} else {
-						printf("fd[%d] closed", i);
+						printf("fd[%d] closed\n", i);
 						close(fd[i]);
 						fd[i] = -1;
 					}
@@ -115,7 +125,7 @@ int main(int argc, char *argv[]) {
 					printf("fd[%d] open but not set\n", i);
 				}
 			} else {
-				printf("fd[%d] is -1", i);
+				printf("fd[%d] is -1\n", i);
 			}
 		}						
 	}
@@ -160,7 +170,6 @@ int makesock(char *service) {
 uint32_t randomHash() {
 	int d = UINT32_MAX / RAND_MAX;
 	int m = UINT32_MAX % RAND_MAX + 1;
-	srand((int)time(NULL));
 	uint32_t number = (uint32_t)(rand()*d + rand()%m);
 	return number;
 }
