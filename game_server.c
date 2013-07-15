@@ -123,9 +123,9 @@ int main(int argc, char *argv[]) {
 	int turn = 0;
 	struct gamePlayer players[USER_NUM];
 	struct company companies[COMPANY_NUM];
+	srand((unsigned int)time(NULL));
 
 	for (i=0;i<COMPANY_NUM;i++) {
-		srand((unsigned)time(NULL));
 		companies[i].price = 50 + rand()%100;
 	}
 	for (i=0;i<USER_NUM;i++) {
@@ -150,7 +150,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	for(;;)
-	{
+	{	
+		srand((unsigned int)time(NULL));
 		if (difftime(time(NULL), timer) > 15) {
 			printf("15seconds has passed\n");
 			for (i=1; i<USER_NUM+1; i++) {
@@ -391,7 +392,7 @@ int makesock(char *service) {
 }
 
 uint32_t randomHash() {
-	srand((int)time(NULL));
+//	srand((unsigned int)time(NULL));
 	int d = UINT32_MAX / RAND_MAX;
 	int m = UINT32_MAX % RAND_MAX + 1;
 	uint32_t number = (uint32_t)(rand()*d + rand()%m);
