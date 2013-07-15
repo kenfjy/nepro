@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
 							//printf("randomHash() create the next number: %u\n", block[i]);
 							sprintf(userstream, "%x", htonl(response[k]));
 							//printf("this is HEX!!! %s\n", userstream);
-							write(fd[i],userstream, INTSIZE);
+							write(fd[i], userstream, INTSIZE);
 						}
 
 						/* until here */
