@@ -45,7 +45,6 @@ struct company {
 };
 
 int main(int argc, char *argv[]) {
-	srand((int)time(NULL));
 	if (argv[1] == NULL) {
 		puts("missing parameters");
 		return 0;
@@ -125,16 +124,29 @@ int main(int argc, char *argv[]) {
 	struct gamePlayer players[USER_NUM];
 	struct company companies[COMPANY_NUM];
 
+	for (i=0;i<COMPANY_NUM;i++) {
+		srand((unsigned)time(NULL));
+		companies[i].price = 50 + rand()%100;
+	}
 	for (i=0;i<USER_NUM;i++) {
 		players[i].budget[0] = 10000;
 		players[i].count = 0;
 		for (j=0; j<COMPANY_NUM; j++) {
 			players[i].tickets[j] = 0;
 		}
-	}
-	for (i=0;i<COMPANY_NUM;i++) {
-		srand((unsigned)time(NULL));
-		companies[i].price = 50 + rand()%100;
+		players[i].key = randomHash();
+		response[0] = players[i].key;
+		response[1] = 0x00000000;
+		for (k=0; k<COMPANY_NUM; k++) {
+			response[2*k+2] = k;
+			response[2*k+3] = companies[k].price;
+		}
+		for (k=0; k<22; k++) {
+			//printf("randomHash() create the next number: %u\n", block[i]);
+			sprintf(userstream, "%x", htonl(response[k]));
+			//printf("this is HEX!!! %s\n", userstream);
+			write(fd[i], userstream, INTSIZE);
+		}
 	}
 
 	for(;;)
@@ -233,14 +245,27 @@ int main(int argc, char *argv[]) {
 				players[i].count = 0;
 			}
 			/* some functions to change the price of company tickets */
-			turn++;
 			timer = time(NULL);
 			if (turn != 12*PLAY_YEARS) {
 				for(i=0; i<USER_NUM; i++) {
 					players[i].budget[turn] = players[i].budget[turn-1];
 					players[i].key = randomHash();
+					response[0] = players[i].key;
+					response[1] = 0x00000000;
+					for (k=0; k<COMPANY_NUM; k++) {
+						response[2*k+2] = k;
+						response[2*k+3] = companies[k].price;
+					}
+					for (k=0; k<22; k++) {
+						//printf("randomHash() create the next number: %u\n", block[i]);
+						sprintf(userstream, "%x", htonl(response[k]));
+						//printf("this is HEX!!! %s\n", userstream);
+						write(fd[i], userstream, INTSIZE);
+					}
 				}
 			}
+
+			turn++;
 		}
 		if (turn == 12*PLAY_YEARS) {
 			break;
@@ -366,6 +391,7 @@ int makesock(char *service) {
 }
 
 uint32_t randomHash() {
+	srand((int)time(NULL));
 	int d = UINT32_MAX / RAND_MAX;
 	int m = UINT32_MAX % RAND_MAX + 1;
 	uint32_t number = (uint32_t)(rand()*d + rand()%m);
