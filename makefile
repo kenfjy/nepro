@@ -1,5 +1,5 @@
 CFLAGS = -Wall -g
-all: echo_server
+all: echo_server game_server
 
 echo_server: echo_server.o
 	$(CC) $(CFLAGS) -o echo_server echo_server.o
