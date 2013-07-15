@@ -93,6 +93,8 @@ int main(int argc, char *argv[]) {
 	tv.tv_sec = 0;
 	tv.tv_usec = 10;
 
+	srand((unsigned)time(NULL));
+
 	while(sockCount <= USER_NUM)
 	{
 		FD_ZERO(&fdsets);
@@ -121,18 +123,14 @@ int main(int argc, char *argv[]) {
 
 	timer = time(NULL);
 	int turn = 0;
+
+
 	struct gamePlayer players[USER_NUM];
 	struct company companies[COMPANY_NUM];
 
-	srand((int)time(NULL));
-
 	for (i=0;i<COMPANY_NUM;i++) {
 		companies[i].price = 50 + rand()%100;
-		printf("price : %d\n", companies[i].price);
 	}
-
-
-
 
 	for (i=0;i<USER_NUM;i++) {
 		players[i].budget[0] = 10000;
@@ -141,6 +139,7 @@ int main(int argc, char *argv[]) {
 			players[i].tickets[j] = 0;
 		}
 		players[i].key = randomHash();
+		printf("players : %d\n", players[i].key);
 		response[0] = players[i].key;
 		response[1] = 0x00000000;
 		for (k=0; k<COMPANY_NUM; k++) {
@@ -157,7 +156,7 @@ int main(int argc, char *argv[]) {
 
 	for(;;)
 	{	
-		srand((unsigned int)time(NULL));
+		srand((unsigned)time(NULL));
 		if (difftime(time(NULL), timer) > 15) {
 			printf("15seconds has passed\n");
 			for (i=1; i<USER_NUM+1; i++) {
@@ -398,7 +397,7 @@ int makesock(char *service) {
 }
 
 uint32_t randomHash() {
-	srand((int)time(NULL));
+//	srand((int)time(NULL));
 	int d = UINT32_MAX / RAND_MAX;
 	int m = UINT32_MAX % RAND_MAX + 1;
 	uint32_t number = (uint32_t)(rand()*d + rand()%m);
