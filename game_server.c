@@ -11,7 +11,7 @@
 #include <sys/select.h>
 #include <limits.h>
 
-#define INTSIZE 8
+#define INTSIZE 10
 
 #define BUFSIZE 1024
 #define USER_NUM 4
@@ -114,7 +114,7 @@ int main(int argc, char *argv[]) {
 			}
 			printf("new user accepted: %d\n", sockCount);
 			strcpy(message, "you have joined the game!\n");
-			write(fd[sockCount], (const void *)message, sizeof(message));
+			write(fd[sockCount], (const void *)message, strlen(message));
 			sockCount++;
 		}
 	}
@@ -123,11 +123,17 @@ int main(int argc, char *argv[]) {
 	int turn = 0;
 	struct gamePlayer players[USER_NUM];
 	struct company companies[COMPANY_NUM];
-	srand((unsigned int)time(NULL));
+
+	srand((int)time(NULL));
 
 	for (i=0;i<COMPANY_NUM;i++) {
 		companies[i].price = 50 + rand()%100;
+		printf("price : %d\n", companies[i].price);
 	}
+
+
+
+
 	for (i=0;i<USER_NUM;i++) {
 		players[i].budget[0] = 10000;
 		players[i].count = 0;
@@ -392,7 +398,7 @@ int makesock(char *service) {
 }
 
 uint32_t randomHash() {
-//	srand((unsigned int)time(NULL));
+	srand((int)time(NULL));
 	int d = UINT32_MAX / RAND_MAX;
 	int m = UINT32_MAX % RAND_MAX + 1;
 	uint32_t number = (uint32_t)(rand()*d + rand()%m);
