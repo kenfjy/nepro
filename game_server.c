@@ -159,13 +159,14 @@ int main(int argc, char *argv[]) {
 	{	
 		srand((unsigned)time(NULL));
 		if (difftime(time(NULL), timer) > 15) {
+			int company_p[COMPANY_NUM];
+			for(i=0; i<COMPANY_NUM; i++) {
+				company_p[i] = 0;
+			}
 			printf("15seconds has passed\n");
 			for (i=1; i<USER_NUM+1; i++) {
 				if (fd[i] != (-1)) {
 					if (FD_ISSET(fd[i], &fdsets)) {
-
-						/* below this part, it is mainly the same */
-
 						int k;
 						for (k=0; k<4; k++) {
 							read(fd[i], userstream, INTSIZE);
@@ -223,11 +224,21 @@ int main(int argc, char *argv[]) {
 					k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
 					players[i-1].tickets[j] += players[i-1].purchase[j];
 					players[i-1].tickets[j] -= players[i-1].sale[j];
+					company_p[j] += players[i-1].purchase[j];
+					company_p[j] -= players[i-1].purchase[j];
 					players[i-1].purchase[j] = 0;
 					players[i-1].sale[j] = 0;
 				}
 				players[i-1].budget[turn] -= k;
 				players[i-1].count = 0;
+			}
+			int addition = 0;
+			for (k=0; k<COMPANY_NUM; k++) {
+				addition += company_p[k];
+			}
+			addition = 10000 / addition;
+			for (k=0; k<COMPANY_NUM; k++) {
+				companies[i].price = companies[i].price - 5000 + rand()%10000 + addition * company_p[k];
 			}
 			/* some functions to change the price of company tickets */
 			timer = time(NULL);
@@ -253,6 +264,38 @@ int main(int argc, char *argv[]) {
 			turn++;
 		}
 		if (turn == 12*PLAY_YEARS) {
+			response[0] = 0x00000000;
+			response[1] = 0x00000002;
+			int rank[USER_NUM];
+			int list[USER_NUM];
+			int u;
+			for (i=0; i<USER_NUM; i++) {
+				list[USER_NUM] = players[i].budget[turn-1];
+			}
+			for (i=0; i<USER_NUM; i++) {
+				u = 0;
+				for (j=0; j<USER_NUM; j++) {
+					if (list[j] > list[u]) {
+						u = j;
+					}
+				}
+				list[u] = 0;
+				rank[i] = u;
+			}
+			for (i=0; i<USER_NUM; i++) {
+				j = 0;
+				while(i != rank[j]) {
+					j++;
+				}
+				response[2] = j+1;
+				response[3] = players[i].budget[turn-1];
+				for (k=0; k<4; k++) {
+					//printf("randomHash() create the next number: %u\n", block[i]);
+					sprintf(userstream, "%x", htonl(response[k]));
+					//printf("this is HEX!!! %s\n", userstream);
+					write(fd[i+1], userstream, INTSIZE);
+				}
+			}
 			break;
 		}
 		FD_ZERO(&fdsets);
