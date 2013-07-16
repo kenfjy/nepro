@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
 	int fd[USER_NUM + 2];
 	fd_set fdsets;
 	//uint32_t block[USER_NUM+1];
-	char userstream[BUFSIZE];
+	//char userstream[BUFSIZE];
 	uint32_t request[4];
 	uint32_t response[22];
 	char message[BUFSIZE];
@@ -148,9 +148,11 @@ int main(int argc, char *argv[]) {
 		}
 		for (k=0; k<22; k++) {
 			//printf("randomHash() create the next number: %u\n", block[i]);
-			sprintf(userstream, "%x", htonl(response[k]));
+			//sprintf(userstream, "%x", htonl(response[k]));
 			//printf("this is HEX!!! %s\n", userstream);
-			write(fd[i+1], userstream, INTSIZE);
+			//write(fd[i+1], userstream, INTSIZE);
+			uint32_t tmp = htonl(response[k]);
+			write(fd[i+1],&tmp,sizeof(tmp));
 		}
 	}
 
@@ -168,8 +170,13 @@ int main(int argc, char *argv[]) {
 					if (FD_ISSET(fd[i], &fdsets)) {
 						int k;
 						for (k=0; k<4; k++) {
+							/*
 							read(fd[i], userstream, INTSIZE);
 							request[k] = ntohl(strtol(userstream, NULL, 16));
+							*/
+							read(fd[i], &request[k], sizeof(request[k]));
+							request[k] = ntohl(request[k]);
+
 						}
 						response[0] = request[0];
 						for (k=0; k<COMPANY_NUM; k++) {
@@ -210,9 +217,11 @@ int main(int argc, char *argv[]) {
 							
 						for (k=0; k<22; k++) {
 							//printf("randomHash() create the next number: %u\n", block[i]);
-							sprintf(userstream, "%x", htonl(response[k]));
+							//sprintf(userstream, "%x", htonl(response[k]));
 							//printf("this is HEX!!! %s\n", userstream);
-							write(fd[i], userstream, INTSIZE);
+							//write(fd[i], userstream, INTSIZE);
+							uint32_t tmp = htonl(response[k]);
+							write(fd[i],&tmp,sizeof(tmp));
 						}
 					}
 				} else {
@@ -256,9 +265,11 @@ int main(int argc, char *argv[]) {
 					}
 					for (k=0; k<22; k++) {
 						//printf("randomHash() create the next number: %u\n", block[i]);
-						sprintf(userstream, "%x", htonl(response[k]));
+						//sprintf(userstream, "%x", htonl(response[k]));
 						//printf("this is HEX!!! %s\n", userstream);
-						write(fd[i+1], userstream, INTSIZE);
+						//write(fd[i+1], userstream, INTSIZE);
+						uint32_t tmp = htonl(response[k]);
+						write(fd[i+1], &tmp, sizeof(tmp));
 					}
 				}
 			}
@@ -292,9 +303,11 @@ int main(int argc, char *argv[]) {
 				response[3] = players[i].budget[turn-1];
 				for (k=0; k<4; k++) {
 					//printf("randomHash() create the next number: %u\n", block[i]);
-					sprintf(userstream, "%x", htonl(response[k]));
+					//sprintf(userstream, "%x", htonl(response[k]));
 					//printf("this is HEX!!! %s\n", userstream);
-					write(fd[i+1], userstream, INTSIZE);
+					//write(fd[i+1], userstream, INTSIZE);
+					uint32_t tmp = htonl(response[k]);
+					write(fd[i+1],&tmp,sizeof(tmp));
 				}
 			}
 			break;
@@ -326,8 +339,12 @@ int main(int argc, char *argv[]) {
 					printf("fd[%d] ready for read\n", i);
 					int k;
 					for (k=0; k<4; k++) {
+						/*
 						read(fd[i], userstream, INTSIZE);
 						request[k] = ntohl(strtol(userstream, NULL, 16));
+						*/
+						read(fd[i], &request[k], sizeof(request[k]));
+						request[k] = ntohl(request[k]);
 					}
 
 					response[0] = request[0];
@@ -369,9 +386,11 @@ int main(int argc, char *argv[]) {
 						
 					for (k=0; k<22; k++) {
 						//printf("randomHash() create the next number: %u\n", block[i]);
-						sprintf(userstream, "%x", htonl(response[k]));
+						//sprintf(userstream, "%x", htonl(response[k]));
 						//printf("this is HEX!!! %s\n", userstream);
-						write(fd[i],userstream, INTSIZE);
+						//write(fd[i],userstream, INTSIZE);
+						uint32_t tmp = htonl(response[k]);
+						write(fd[i],&tmp, sizeof(tmp));
 					}
 
 					players[i-1].count++;
