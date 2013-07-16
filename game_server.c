@@ -241,6 +241,9 @@ int main(int argc, char *argv[]) {
 			}
 			/* some functions to change the price of company tickets */
 			timer = time(NULL);
+
+			turn++;
+			
 			if (turn != 12*PLAY_YEARS) {
 				for(i=0; i<USER_NUM; i++) {
 					players[i].budget[turn] = players[i].budget[turn-1];
@@ -260,7 +263,6 @@ int main(int argc, char *argv[]) {
 				}
 			}
 
-			turn++;
 		}
 		if (turn == 12*PLAY_YEARS) {
 			response[0] = 0x00000000;
