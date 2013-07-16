@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
 		players[i].count = 0;
 		players[i].key = randomHash();
 
-		printf("players : %d\n", players[i].key);
+		printf("players : %u\n", players[i].key);
 		response[0] = players[i].key;
 		response[1] = 0x00000000;
 		for (k=0; k<COMPANY_NUM; k++) {
