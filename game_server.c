@@ -135,14 +135,15 @@ int main(int argc, char *argv[]) {
 	for (i=0;i<USER_NUM;i++) {
 		players[i].budget[0] = 10000;
 		players[i].count = 0;
-		for (j=0; j<COMPANY_NUM; j++) {
-			players[i].tickets[j] = 0;
-		}
+
 		players[i].key = randomHash();
 		printf("players : %d\n", players[i].key);
 		response[0] = players[i].key;
 		response[1] = 0x00000000;
 		for (k=0; k<COMPANY_NUM; k++) {
+			players[i].tickets[k] = 0;
+			players[i].purchase[k] = 0;
+			players[i].sale[k] = 0;
 			response[2*k+2] = k;
 			response[2*k+3] = companies[k].price;
 		}
@@ -213,28 +214,6 @@ int main(int argc, char *argv[]) {
 							//printf("this is HEX!!! %s\n", userstream);
 							write(fd[i], userstream, INTSIZE);
 						}
-
-						/* until here */
-
-/* OMIT THIS PART later
-						if ((msg_length = read(fd[i], userstream, sizeof(userstream))) == -1) {
-							printf("fd[%d] read error\n", i);
-						} else if (msg_length > 0) {
-							block[i] = ntohl(atoi(userstream));
-							printf("fd[%d] input: %s\n", i, userstream);
-							for (k=0; k<22; k++) {
-								block[i] = randomHash();
-								//printf("randomHash() create the next number: %u\n", block[i]);
-								sprintf(userstream, "%x", htonl(block[i]));
-								//printf("this is HEX!!! %s\n", userstream);
-								write(fd[i],userstream, strlen(userstream));
-							}
-						} else {
-							printf("fd[%d] closed\n", i);
-							close(fd[i]);
-							fd[i] = -1;
-						}
-						*/
 					}
 				} else {
 					printf("fd[%d] is -1\n", i);
