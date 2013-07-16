@@ -90,14 +90,14 @@ int main(int argc, char *argv[]) {
 	timer = time(NULL);
 
 	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 10;
 
 	srand((unsigned)time(NULL));
 
 	while(sockCount <= USER_NUM)
 	{
 		FD_ZERO(&fdsets);
+		tv.tv_sec = 0;
+		tv.tv_usec = 10;
 		for (i=0; i<sockCount; i++) {
 			if (fd[i] != (-1)) {
 				FD_SET(fd[i], &fdsets);
@@ -123,7 +123,6 @@ int main(int argc, char *argv[]) {
 
 	timer = time(NULL);
 	int turn = 0;
-
 
 	struct gamePlayer players[USER_NUM];
 	struct company companies[COMPANY_NUM];
