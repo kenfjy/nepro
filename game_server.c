@@ -160,6 +160,8 @@ int main(int argc, char *argv[]) {
 
 	for(;;)
 	{	
+		tv.tv_sec = 0;
+		tv.tv_usec = 10;
 		srand((unsigned)time(NULL));
 		if (difftime(time(NULL), timer) > 15) {
 			int company_p[COMPANY_NUM];
