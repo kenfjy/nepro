@@ -178,32 +178,32 @@ int main(int argc, char *argv[]) {
 						}
 						response[request[2]*2+2] = request[3];
 
-						if (players[i].key != request[0]) {
+						if (players[i-1].key != request[0]) {
 							response[1] = ERR_KEY;
 						} else if(request[1] != PURCHASE && request[1] != SALE) {
 							response[1] = ERR_CODE;
-						} else if(players[i].count >=5) {
+						} else if(players[i-1].count >=5) {
 							response[1] = ERR_REQ;
 						} else if(request[2] < 0 || request[2] > COMPANY_NUM-1) {
 							response[1] = ERR_ID;
 						} else {
 							k=0;
 							for(j=0;j<COMPANY_NUM;j++) {
-								k += (players[i].purchase[j] - players[i].sale[j]) * companies[j].price;
+								k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
 							}
 							if(request[1] == PURCHASE) {
 								k += request[3]*companies[request[2]].price;
 							} else {
 								k -= request[3]*companies[request[2]].price;
 							}
-							if(players[i].budget[turn] <= k) {
+							if(players[i-1].budget[turn] <= k) {
 								response[1] = ERR_PUR;
 							} else {
 								response[1] = ACCEPT;
 								if(request[1] == PURCHASE) {
-									players[i].purchase[j] += request[3];
+									players[i-1].purchase[j] += request[3];
 								} else {
-									players[i].sale[j] += request[3];
+									players[i-1].sale[j] += request[3];
 								}
 							}
 						}
@@ -220,14 +220,14 @@ int main(int argc, char *argv[]) {
 				}
 				k=0;
 				for(j=0; j<COMPANY_NUM; j++) {
-					k += (players[i].purchase[j] - players[i].sale[j]) * companies[j].price;
-					players[i].tickets[j] += players[i].purchase[j];
-					players[i].tickets[j] -= players[i].sale[j];
-					players[i].purchase[j] = 0;
-					players[i].sale[j] = 0;
+					k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
+					players[i-1].tickets[j] += players[i-1].purchase[j];
+					players[i-1].tickets[j] -= players[i-1].sale[j];
+					players[i-1].purchase[j] = 0;
+					players[i-1].sale[j] = 0;
 				}
-				players[i].budget[turn] -= k;
-				players[i].count = 0;
+				players[i-1].budget[turn] -= k;
+				players[i-1].count = 0;
 			}
 			/* some functions to change the price of company tickets */
 			timer = time(NULL);
