@@ -135,8 +135,8 @@ int main(int argc, char *argv[]) {
 	for (i=0;i<USER_NUM;i++) {
 		players[i].budget[0] = 10000;
 		players[i].count = 0;
-
 		players[i].key = randomHash();
+
 		printf("players : %d\n", players[i].key);
 		response[0] = players[i].key;
 		response[1] = 0x00000000;
@@ -151,7 +151,7 @@ int main(int argc, char *argv[]) {
 			//printf("randomHash() create the next number: %u\n", block[i]);
 			sprintf(userstream, "%x", htonl(response[k]));
 			//printf("this is HEX!!! %s\n", userstream);
-			write(fd[i], userstream, INTSIZE);
+			write(fd[i+1], userstream, INTSIZE);
 		}
 	}
 
@@ -245,7 +245,7 @@ int main(int argc, char *argv[]) {
 						//printf("randomHash() create the next number: %u\n", block[i]);
 						sprintf(userstream, "%x", htonl(response[k]));
 						//printf("this is HEX!!! %s\n", userstream);
-						write(fd[i], userstream, INTSIZE);
+						write(fd[i+1], userstream, INTSIZE);
 					}
 				}
 			}
