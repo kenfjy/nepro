@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
 							response[2*k+2] = k;
 							response[2*k+3] = 0x00000000;
 						}
-						response[request[2]*2+2] = request[3];
+						response[request[2]*2+3] = request[3];
 
 						if (players[i-1].key != request[0]) {
 							response[1] = ERR_KEY;
@@ -334,7 +334,7 @@ int main(int argc, char *argv[]) {
 						response[2*k+2] = k;
 						response[2*k+3] = 0x00000000;
 					}
-					response[request[2]*2+2] = request[3];
+					response[request[2]*2+3] = request[3];
 
 					if (players[i-1].key != request[0]) {
 						response[1] = ERR_KEY;
