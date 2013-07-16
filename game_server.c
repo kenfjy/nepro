@@ -246,7 +246,11 @@ int main(int argc, char *argv[]) {
 			for (k=0; k<COMPANY_NUM; k++) {
 				addition += company_p[k];
 			}
-			addition = 10000 / addition;
+			if (addition > 1 && addition < -1) {
+				addition = 10000 / addition;
+			} else {
+				addition = 0;
+			}
 			for (k=0; k<COMPANY_NUM; k++) {
 				companies[i].price = companies[i].price - 5000 + rand()%10000 + addition * company_p[k];
 			}
