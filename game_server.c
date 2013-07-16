@@ -11,7 +11,7 @@
 #include <sys/select.h>
 #include <limits.h>
 
-#define INTSIZE 10
+#define INTSIZE 8
 
 #define BUFSIZE 1024
 #define USER_NUM 4
