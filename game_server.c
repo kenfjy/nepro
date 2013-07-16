@@ -56,7 +56,7 @@ int main(int argc, char *argv[]) {
 	//char userstream[BUFSIZE];
 	uint32_t request[4];
 	uint32_t response[22];
-	char message[BUFSIZE];
+	//char message[BUFSIZE];
 	int i,j,k;
 	int error;
 
@@ -115,8 +115,10 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr,"socket error: %s(%d)\n", gai_strerror(fd[sockCount]), fd[sockCount]);
 			}
 			printf("new user accepted: %d\n", sockCount);
+			/*
 			strcpy(message, "you have joined the game!\n");
 			write(fd[sockCount], (const void *)message, strlen(message));
+			*/
 			sockCount++;
 		}
 	}
@@ -328,8 +330,10 @@ int main(int argc, char *argv[]) {
 		if (FD_ISSET(fd[0], &fdsets) != 0) {
 			fd[USER_NUM+1] = accept(fd[0], (struct sockaddr *)&ss, &sl);
 			printf("too many user has tried to connect\n");
+			/*
 			strcpy(message, "the server already has four players\n");
 			write(fd[USER_NUM+1], message, sizeof(message));
+			*/
 			close(fd[USER_NUM+1]);
 		}
 
