@@ -222,11 +222,13 @@ int main(int argc, char *argv[]) {
 				k=0;
 				for(j=0; j<COMPANY_NUM; j++) {
 					k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
+					//purchase 
 					players[i-1].tickets[j] += players[i-1].purchase[j];
-					players[i-1].tickets[j] -= players[i-1].sale[j];
 					company_p[j] += players[i-1].purchase[j];
-					company_p[j] -= players[i-1].purchase[j];
 					players[i-1].purchase[j] = 0;
+					//sale
+					players[i-1].tickets[j] -= players[i-1].sale[j];
+					company_p[j] -= players[i-1].sale[j];
 					players[i-1].sale[j] = 0;
 				}
 				players[i-1].budget[turn] -= k;
@@ -236,19 +238,16 @@ int main(int argc, char *argv[]) {
 			for (k=0; k<COMPANY_NUM; k++) {
 				addition += company_p[k];
 			}
-			if (addition > 1 && addition < -1) {
-				addition = 10000 / addition;
+			if (addition == 0) {
+				for (k=0; k<COMPANY_NUM; k++) {
+					companies[k].price = companies[k].price - 5 + rand()%10;
+				}
 			} else {
-				addition = 0;
+				for (k=0; k<COMPANY_NUM; k++) {
+					companies[k].price = companies[k].price - 5 + rand()%10 + companies[k].price/10*company_p[k]/addition;
+				}
 			}
-			for (k=0; k<COMPANY_NUM; k++) {
-				companies[k].price = companies[k].price - 50 + rand()%100 + addition * company_p[k];
-			}
-			/* some functions to change the price of company tickets */
-			timer = time(NULL);
-
 			turn++;
-			
 			if (turn != 12*PLAY_YEARS) {
 				for(i=0; i<USER_NUM; i++) {
 					players[i].budget[turn] = players[i].budget[turn-1];
@@ -260,16 +259,12 @@ int main(int argc, char *argv[]) {
 						response[2*k+3] = companies[k].price;
 					}
 					for (k=0; k<22; k++) {
-						//printf("randomHash() create the next number: %u\n", block[i]);
-						//sprintf(userstream, "%x", htonl(response[k]));
-						//printf("this is HEX!!! %s\n", userstream);
-						//write(fd[i+1], userstream, INTSIZE);
 						uint32_t tmp = htonl(response[k]);
 						write(fd[i+1], &tmp, sizeof(tmp));
 					}
 				}
 			}
-
+			timer = time(NULL);
 		}
 		if (turn == 12*PLAY_YEARS) {
 			response[0] = 0x00000000;
@@ -298,10 +293,6 @@ int main(int argc, char *argv[]) {
 				response[2] = j+1;
 				response[3] = players[i].budget[turn-1];
 				for (k=0; k<4; k++) {
-					//printf("randomHash() create the next number: %u\n", block[i]);
-					//sprintf(userstream, "%x", htonl(response[k]));
-					//printf("this is HEX!!! %s\n", userstream);
-					//write(fd[i+1], userstream, INTSIZE);
 					uint32_t tmp = htonl(response[k]);
 					write(fd[i+1],&tmp,sizeof(tmp));
 				}
@@ -317,17 +308,11 @@ int main(int argc, char *argv[]) {
 
 		if ((n = select(FD_SETSIZE, &fdsets, NULL, NULL, &tv)) == -1) {
 			printf("error in select");
-		} else {
-			//printf("select returns: %d\n", n);
 		}
 
 		if (FD_ISSET(fd[0], &fdsets) != 0) {
 			fd[USER_NUM+1] = accept(fd[0], (struct sockaddr *)&ss, &sl);
 			printf("too many user has tried to connect\n");
-			/*
-			strcpy(message, "the server already has four players\n");
-			write(fd[USER_NUM+1], message, sizeof(message));
-			*/
 			close(fd[USER_NUM+1]);
 		}
 
@@ -337,10 +322,6 @@ int main(int argc, char *argv[]) {
 					printf("fd[%d] ready for read\n", i);
 					int k;
 					for (k=0; k<4; k++) {
-						/*
-						read(fd[i], userstream, INTSIZE);
-						request[k] = ntohl(strtol(userstream, NULL, 16));
-						*/
 						read(fd[i], &request[k], sizeof(request[k]));
 						request[k] = ntohl(request[k]);
 					}
@@ -384,10 +365,6 @@ int main(int argc, char *argv[]) {
 					}
 						
 					for (k=0; k<22; k++) {
-						//printf("randomHash() create the next number: %u\n", block[i]);
-						//sprintf(userstream, "%x", htonl(response[k]));
-						//printf("this is HEX!!! %s\n", userstream);
-						//write(fd[i],userstream, INTSIZE);
 						uint32_t tmp = htonl(response[k]);
 						write(fd[i],&tmp, sizeof(tmp));
 					}
@@ -438,7 +415,6 @@ int makesock(char *service) {
 }
 
 uint32_t randomHash() {
-//	srand((int)time(NULL));
 	int d = UINT32_MAX / RAND_MAX;
 	int m = UINT32_MAX % RAND_MAX + 1;
 	uint32_t number = (uint32_t)(rand()*d + rand()%m);
