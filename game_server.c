@@ -24,11 +24,8 @@ int main(int argc, char *argv[]) {
 	char service[100];
 	int fd[USER_NUM + 2];
 	fd_set fdsets;
-	//uint32_t block[USER_NUM+1];
-	//char userstream[BUFSIZE];
 	uint32_t request[4];
 	uint32_t response[22];
-	//char message[BUFSIZE];
 	int i,j,k,n;
 	int error;
 
@@ -103,8 +100,6 @@ int main(int argc, char *argv[]) {
 		players[i].budget[0] = 10000;
 		players[i].count = 0;
 		players[i].key = randomHash();
-
-		printf("players : %u\n", players[i].key);
 		response[0] = players[i].key;
 		response[1] = 0x00000000;
 		for (k=0; k<COMPANY_NUM; k++) {
@@ -130,14 +125,13 @@ int main(int argc, char *argv[]) {
 			for(i=0; i<COMPANY_NUM; i++) {
 				company_p[i] = 0;
 			}
-			printf("15seconds has passed\n");
+			printf("15 seconds has passed\n");
 			for (i=1; i<USER_NUM+1; i++) {
 				if (fd[i] != (-1)) {
 					if (FD_ISSET(fd[i], &fdsets)) {
 						for (k=0; k<4; k++) {
-							read(fd[i], &request[k], sizeof(request[k]));
+							error = read(fd[i], &request[k], sizeof(request[k]));
 							request[k] = ntohl(request[k]);
-
 						}
 						response[0] = request[0];
 						for (k=0; k<COMPANY_NUM; k++) {
@@ -206,11 +200,11 @@ int main(int argc, char *argv[]) {
 			}
 			if (addition == 0) {
 				for (k=0; k<COMPANY_NUM; k++) {
-					companies[k].price = companies[k].price - 5 + rand()%10;
+					companies[k].price = companies[k].price - 5 + rand()%11;
 				}
 			} else {
 				for (k=0; k<COMPANY_NUM; k++) {
-					companies[k].price = companies[k].price - 5 + rand()%10 + companies[k].price/10*company_p[k]/addition;
+					companies[k].price = companies[k].price - 5 + rand()%11 + companies[k].price/10*company_p[k]/addition;
 				}
 			}
 			turn++;
