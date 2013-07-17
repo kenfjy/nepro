@@ -77,21 +77,20 @@ int main(int argc, char *argv[]) {
 	}
 	printf("listen success!\n");
 
-	fd[1] = -1;
+	for(i=1;i<USER_NUM+2;i++) {
+		fd[i] = -1;
+	}
 	//int msg_length, n;
+
+	int sockCount = 1;
+	srand((unsigned)time(NULL));
+	struct timeval tv;
+	time_t timer;
+	timer = time(NULL);
 	int n;
 	struct sockaddr_storage ss;
 	socklen_t sl;
 	sl = sizeof(ss);
-
-	int sockCount = 1;
-
-	time_t timer;
-	timer = time(NULL);
-
-	struct timeval tv;
-
-	srand((unsigned)time(NULL));
 
 	while(sockCount <= USER_NUM)
 	{
@@ -149,10 +148,6 @@ int main(int argc, char *argv[]) {
 			response[2*k+3] = companies[k].price;
 		}
 		for (k=0; k<22; k++) {
-			//printf("randomHash() create the next number: %u\n", block[i]);
-			//sprintf(userstream, "%x", htonl(response[k]));
-			//printf("this is HEX!!! %s\n", userstream);
-			//write(fd[i+1], userstream, INTSIZE);
 			uint32_t tmp = htonl(response[k]);
 			write(fd[i+1],&tmp,sizeof(tmp));
 		}
@@ -162,7 +157,7 @@ int main(int argc, char *argv[]) {
 	{	
 		tv.tv_sec = 0;
 		tv.tv_usec = 10;
-		srand((unsigned)time(NULL));
+
 		if (difftime(time(NULL), timer) > 15) {
 			int company_p[COMPANY_NUM];
 			for(i=0; i<COMPANY_NUM; i++) {
@@ -174,10 +169,6 @@ int main(int argc, char *argv[]) {
 					if (FD_ISSET(fd[i], &fdsets)) {
 						int k;
 						for (k=0; k<4; k++) {
-							/*
-							read(fd[i], userstream, INTSIZE);
-							request[k] = ntohl(strtol(userstream, NULL, 16));
-							*/
 							read(fd[i], &request[k], sizeof(request[k]));
 							request[k] = ntohl(request[k]);
 
@@ -221,10 +212,6 @@ int main(int argc, char *argv[]) {
 						}
 							
 						for (k=0; k<22; k++) {
-							//printf("randomHash() create the next number: %u\n", block[i]);
-							//sprintf(userstream, "%x", htonl(response[k]));
-							//printf("this is HEX!!! %s\n", userstream);
-							//write(fd[i], userstream, INTSIZE);
 							uint32_t tmp = htonl(response[k]);
 							write(fd[i],&tmp,sizeof(tmp));
 						}
@@ -255,7 +242,7 @@ int main(int argc, char *argv[]) {
 				addition = 0;
 			}
 			for (k=0; k<COMPANY_NUM; k++) {
-				companies[i].price = companies[i].price - 5000 + rand()%10000 + addition * company_p[k];
+				companies[k].price = companies[k].price - 5000 + rand()%10000 + addition * company_p[k];
 			}
 			/* some functions to change the price of company tickets */
 			timer = time(NULL);
