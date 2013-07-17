@@ -162,11 +162,11 @@ int main(int argc, char *argv[]) {
 									players[i-1].purchase[j] += request[3];
 								}
 							} else {
-								if(request[3] > players[i-1].tickets[request[2]]+players[i-1].purchase[j]-players[i-1].sale[j]) {
+								if(request[3] > players[i-1].tickets[request[2]]+players[i-1].purchase[request[2]]-players[i-1].sale[request[2]]) {
 									response[1] = ERR_SAL;
 								} else {
 									response[1] = ACCEPT;
-									players[i-1].sale[j] += request[3];
+									players[i-1].sale[request[2]] += request[3];
 								}
 							}
 						}
