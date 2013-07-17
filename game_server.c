@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
 	uint32_t request[4];
 	uint32_t response[22];
 	//char message[BUFSIZE];
-	int i,j,k;
+	int i,j,k,n;
 	int error;
 
 	strcpy(service, argv[1]);
@@ -86,9 +86,8 @@ int main(int argc, char *argv[]) {
 	srand((unsigned)time(NULL));
 	struct timeval tv;
 	time_t timer;
-	timer = time(NULL);
-	int n;
 	struct sockaddr_storage ss;
+	timer = time(NULL);
 	socklen_t sl;
 	sl = sizeof(ss);
 
@@ -114,10 +113,6 @@ int main(int argc, char *argv[]) {
 				fprintf(stderr,"socket error: %s(%d)\n", gai_strerror(fd[sockCount]), fd[sockCount]);
 			}
 			printf("new user accepted: %d\n", sockCount);
-			/*
-			strcpy(message, "you have joined the game!\n");
-			write(fd[sockCount], (const void *)message, strlen(message));
-			*/
 			sockCount++;
 		}
 	}
@@ -167,7 +162,6 @@ int main(int argc, char *argv[]) {
 			for (i=1; i<USER_NUM+1; i++) {
 				if (fd[i] != (-1)) {
 					if (FD_ISSET(fd[i], &fdsets)) {
-						int k;
 						for (k=0; k<4; k++) {
 							read(fd[i], &request[k], sizeof(request[k]));
 							request[k] = ntohl(request[k]);
@@ -320,7 +314,6 @@ int main(int argc, char *argv[]) {
 			if (fd[i] != (-1)) {
 				if (FD_ISSET(fd[i], &fdsets)) {
 					printf("fd[%d] ready for read\n", i);
-					int k;
 					for (k=0; k<4; k++) {
 						read(fd[i], &request[k], sizeof(request[k]));
 						request[k] = ntohl(request[k]);
