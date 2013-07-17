@@ -242,7 +242,7 @@ int main(int argc, char *argv[]) {
 				addition = 0;
 			}
 			for (k=0; k<COMPANY_NUM; k++) {
-				companies[k].price = companies[k].price - 5000 + rand()%10000 + addition * company_p[k];
+				companies[k].price = companies[k].price - 50 + rand()%100 + addition * company_p[k];
 			}
 			/* some functions to change the price of company tickets */
 			timer = time(NULL);
