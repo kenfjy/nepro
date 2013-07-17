@@ -198,22 +198,23 @@ int main(int argc, char *argv[]) {
 						} else if(request[2] < 0 || request[2] > COMPANY_NUM-1) {
 							response[1] = ERR_ID;
 						} else {
-							k=0;
-							for(j=0;j<COMPANY_NUM;j++) {
-								k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
-							}
 							if(request[1] == PURCHASE) {
+								k=0;
 								k += request[3]*companies[request[2]].price;
-							} else {
-								k -= request[3]*companies[request[2]].price;
-							}
-							if(players[i-1].budget[turn] <= k) {
-								response[1] = ERR_PUR;
-							} else {
-								response[1] = ACCEPT;
-								if(request[1] == PURCHASE) {
-									players[i-1].purchase[j] += request[3];
+								for(j=0;j<COMPANY_NUM;j++) {
+									k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
+								}
+								if(players[i-1].budget[turn] <= k) {
+									response[1] = ERR_PUR;
 								} else {
+									response[1] = ACCEPT;
+									players[i-1].purchase[j] += request[3];
+								}
+							} else {
+								if(request[3] > players[i-1].tickets[request[2]]+players[i-1].purchase[j]-players[i-1].sale[j]) {
+									response[1] = ERR_SAL;
+								} else {
+									response[1] = ACCEPT;
 									players[i-1].sale[j] += request[3];
 								}
 							}
@@ -373,22 +374,23 @@ int main(int argc, char *argv[]) {
 					} else if(request[2] < 0 || request[2] > COMPANY_NUM-1) {
 						response[1] = ERR_ID;
 					} else {
-						k=0;
-						for(j=0;j<COMPANY_NUM;j++) {
-							k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
-						}
 						if(request[1] == PURCHASE) {
+							k=0;
 							k += request[3]*companies[request[2]].price;
-						} else {
-							k -= request[3]*companies[request[2]].price;
-						}
-						if(players[i-1].budget[turn] <= k) {
-							response[1] = ERR_PUR;
-						} else {
-							response[1] = ACCEPT;
-							if(request[1] == PURCHASE) {
-								players[i-1].purchase[j] += request[3];
+							for(j=0;j<COMPANY_NUM;j++) {
+								k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
+							}
+							if(players[i-1].budget[turn] <= k) {
+								response[1] = ERR_PUR;
 							} else {
+								response[1] = ACCEPT;
+								players[i-1].purchase[j] += request[3];
+							}
+						} else {
+							if(request[3] > players[i-1].tickets[request[2]]+players[i-1].purchase[j]-players[i-1].sale[j]) {
+								response[1] = ERR_SAL;
+							} else {
+								response[1] = ACCEPT;
 								players[i-1].sale[j] += request[3];
 							}
 						}
