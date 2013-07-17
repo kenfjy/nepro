@@ -233,7 +233,7 @@ int main(int argc, char *argv[]) {
 			int list[USER_NUM];
 			int u;
 			for (i=0; i<USER_NUM; i++) {
-				list[USER_NUM] = players[i].budget[turn-1];
+				list[i] = players[i].budget[turn-1];
 			}
 			for (i=0; i<USER_NUM; i++) {
 				u = 0;
