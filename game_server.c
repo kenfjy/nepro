@@ -344,8 +344,8 @@ int makesock(char *service) {
 
 	memset((void *)&hints, 0, sizeof(struct addrinfo));
 	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_family |= PF_UNSPEC;
-	hints.ai_flags |= AI_PASSIVE;
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_flags = AI_PASSIVE;
 
 	error = getaddrinfo(NULL, service, &hints, &ai);
 
