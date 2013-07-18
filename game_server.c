@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
 		tv.tv_sec = 0;
 		tv.tv_usec = 10;
 
-		if (difftime(time(NULL), timer) > 15) {
+		if (difftime(time(NULL), timer) > 1) {
 			int company_p[COMPANY_NUM];
 			for(i=0; i<COMPANY_NUM; i++) {
 				company_p[i] = 0;
