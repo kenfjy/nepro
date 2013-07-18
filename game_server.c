@@ -138,7 +138,6 @@ int main(int argc, char *argv[]) {
 							response[2*k+2] = k;
 							response[2*k+3] = 0x00000000;
 						}
-						response[request[2]*2+3] = request[3];
 
 						if (players[i-1].key != request[0]) {
 							response[1] = ERR_KEY;
@@ -149,6 +148,7 @@ int main(int argc, char *argv[]) {
 						} else if(request[2] < 0 || request[2] > COMPANY_NUM-1) {
 							response[1] = ERR_ID;
 						} else {
+							response[request[2]*2+3] = request[3];
 							if(request[1] == PURCHASE) {
 								k=0;
 								k += request[3]*companies[request[2]].price;
@@ -170,7 +170,6 @@ int main(int argc, char *argv[]) {
 								}
 							}
 						}
-							
 						for (k=0; k<22; k++) {
 							uint32_t tmp = htonl(response[k]);
 							write(fd[i],&tmp,sizeof(tmp));
@@ -290,7 +289,6 @@ int main(int argc, char *argv[]) {
 						response[2*k+2] = k;
 						response[2*k+3] = 0x00000000;
 					}
-					response[request[2]*2+3] = request[3];
 
 					if (players[i-1].key != request[0]) {
 						response[1] = ERR_KEY;
@@ -301,6 +299,7 @@ int main(int argc, char *argv[]) {
 					} else if(request[2] < 0 || request[2] > COMPANY_NUM-1) {
 						response[1] = ERR_ID;
 					} else {
+						response[request[2]*2+3] = request[3];
 						if(request[1] == PURCHASE) {
 							k=0;
 							k += request[3]*companies[request[2]].price;

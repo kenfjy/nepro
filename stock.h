@@ -19,8 +19,10 @@
 #define PLAY_YEARS 5
 
 #define ACCEPT 	0x00000001
+
 #define PURCHASE 	0x00000100
 #define SALE 		0x00000101
+
 #define ERR_CODE 	0x00000400
 #define ERR_KEY 	0x00000401
 #define ERR_REQ 	0x00000402
