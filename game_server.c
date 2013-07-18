@@ -159,7 +159,7 @@ int main(int argc, char *argv[]) {
 									response[1] = ERR_PUR;
 								} else {
 									response[1] = ACCEPT;
-									players[i-1].purchase[j] += request[3];
+									players[i-1].purchase[request[2]] += request[3];
 								}
 							} else {
 								if(request[3] > players[i-1].tickets[request[2]]+players[i-1].purchase[request[2]]-players[i-1].sale[request[2]]) {
