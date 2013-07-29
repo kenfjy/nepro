@@ -1,8 +1,5 @@
 #include "stock.h"
 
-int makesock(char *service);
-uint32_t randomHash();
-
 struct gamePlayer {
 	uint32_t key;
 	int 	budget[PLAY_YEARS*12];
@@ -15,6 +12,11 @@ struct gamePlayer {
 struct company {
 	int 	price;
 };
+
+int makesock(char *service);
+uint32_t randomHash();
+uint32_t status(struct gamePlayer player, struct company* companies, uint32_t arg_0, uint32_t arg_1, uint32_t arg_2, uint32_t arg_3, int turn);
+
 
 int main(int argc, char *argv[]) {
 	if (argv[1] == NULL) {
@@ -139,37 +141,19 @@ int main(int argc, char *argv[]) {
 							response[2*k+3] = 0x00000000;
 						}
 
-						if (players[i-1].key != request[0]) {
-							response[1] = ERR_KEY;
-						} else if(request[1] != PURCHASE && request[1] != SALE) {
-							response[1] = ERR_CODE;
-						} else if(players[i-1].count >=5) {
-							response[1] = ERR_REQ;
-						} else if(request[2] < 0 || request[2] > COMPANY_NUM-1) {
-							response[1] = ERR_ID;
-						} else {
-							response[request[2]*2+3] = request[3];
+						response[1] = status(players[i-1], companies, request[0], request[1], request[2], request[3], turn);
+						printf("response code for user %d is %x\n", i-1, response[1]);
+
+						if (response[1] == ACCEPT) {
 							if(request[1] == PURCHASE) {
-								k=0;
-								k += request[3]*companies[request[2]].price;
-								for(j=0;j<COMPANY_NUM;j++) {
-									k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
-								}
-								if(players[i-1].budget[turn] <= k) {
-									response[1] = ERR_PUR;
-								} else {
-									response[1] = ACCEPT;
-									players[i-1].purchase[request[2]] += request[3];
-								}
+								players[i-1].purchase[request[2]] += request[3];
 							} else {
-								if(request[3] > players[i-1].tickets[request[2]]+players[i-1].purchase[request[2]]-players[i-1].sale[request[2]]) {
-									response[1] = ERR_SAL;
-								} else {
-									response[1] = ACCEPT;
-									players[i-1].sale[request[2]] += request[3];
-								}
+								players[i-1].sale[request[2]] += request[3];
 							}
+						} else if (response[1] == ERR_PUR || response[1] == ERR_SAL || response[1] == ACCEPT) {
+							response[request[2]*2+3] = request[3];
 						}
+
 						for (k=0; k<22; k++) {
 							uint32_t tmp = htonl(response[k]);
 							write(fd[i],&tmp,sizeof(tmp));
@@ -179,7 +163,9 @@ int main(int argc, char *argv[]) {
 					printf("fd[%d] is -1\n", i);
 				}
 				k=0;
+				printf("\n==== User ID: %d on Turn %d ====\n", i-1, turn);
 				for(j=0; j<COMPANY_NUM; j++) {
+					printf("company id: %d\npurchasing %d tickets, selling %d tickets\n BEFORE: %d tickets left", j, players[i-1].purchase[j], players[i-1].sale[j], players[i-1].tickets[j]);
 					k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
 					//purchase 
 					players[i-1].tickets[j] += players[i-1].purchase[j];
@@ -189,8 +175,11 @@ int main(int argc, char *argv[]) {
 					players[i-1].tickets[j] -= players[i-1].sale[j];
 					company_p[j] -= players[i-1].sale[j];
 					players[i-1].sale[j] = 0;
+					printf(" AFTER: %d tickets left\n", players[i-1].tickets[j]);
 				}
+				printf("left over budget BEFORE: %d and k: %d\n", players[i-1].budget[turn], k);
 				players[i-1].budget[turn] -= k;
+				//printf("left over budget %d\n======\n", players[i-1].budget[turn]);
 				players[i-1].count = 0;
 			}
 			int addition = 0;
@@ -222,6 +211,13 @@ int main(int argc, char *argv[]) {
 						write(fd[i+1], &tmp, sizeof(tmp));
 					}
 				}
+				printf("=== TURN: %d ===\n", turn);
+				for (k=0; k<COMPANY_NUM; k++) {
+					response[2*k+2] = k;
+					response[2*k+3] = companies[k].price;
+					printf("%d : %i\n", k, companies[k].price);
+				}
+				printf("======\n");
 			}
 			timer = time(NULL);
 		}
@@ -290,38 +286,28 @@ int main(int argc, char *argv[]) {
 						response[2*k+3] = 0x00000000;
 					}
 
-					if (players[i-1].key != request[0]) {
-						response[1] = ERR_KEY;
-					} else if(request[1] != PURCHASE && request[1] != SALE) {
-						response[1] = ERR_CODE;
-					} else if(players[i-1].count >=5) {
-						response[1] = ERR_REQ;
-					} else if(request[2] < 0 || request[2] > COMPANY_NUM-1) {
-						response[1] = ERR_ID;
-					} else {
-						response[request[2]*2+3] = request[3];
+					response[1] = status(players[i-1], companies, request[0], request[1], request[2], request[3], turn);
+					printf("response code for user %d is %x\n", i-1, response[1]);
+
+					if (response[1] == ACCEPT) {
 						if(request[1] == PURCHASE) {
-							k=0;
-							k += request[3]*companies[request[2]].price;
-							for(j=0;j<COMPANY_NUM;j++) {
-								k += (players[i-1].purchase[j] - players[i-1].sale[j]) * companies[j].price;
+							printf("USER %d: Valid purchase!\nticket id: %d quantity: %d", i-1, request[2], request[3]);
+							if (request[3] != 0) {
+								//printf("\n\n\n\n%d\n\n\n\n", request[3]);
 							}
-							if(players[i-1].budget[turn] <= k) {
-								response[1] = ERR_PUR;
-							} else {
-								response[1] = ACCEPT;
-								players[i-1].purchase[j] += request[3];
-							}
+
+							players[i-1].purchase[request[2]] += request[3];
 						} else {
-							if(request[3] > players[i-1].tickets[request[2]]+players[i-1].purchase[j]-players[i-1].sale[j]) {
-								response[1] = ERR_SAL;
-							} else {
-								response[1] = ACCEPT;
-								players[i-1].sale[j] += request[3];
+							printf("USER %d: Valid sale!\nticket id: %d quantity: %d", i-1, request[2], request[3]);
+							if (request[3] != 0) {
+								printf("\n\n\n\n%d\n\n\n\n", request[3]);
 							}
+							players[i-1].sale[request[2]] += request[3];
 						}
+					} else if (response[1] == ERR_PUR || response[1] == ERR_SAL || response[1] == ACCEPT) {
+						response[request[2]*2+3] = request[3];
 					}
-						
+
 					for (k=0; k<22; k++) {
 						uint32_t tmp = htonl(response[k]);
 						write(fd[i],&tmp, sizeof(tmp));
@@ -336,6 +322,40 @@ int main(int argc, char *argv[]) {
 	}
 	printf("connection finished!\n");
 	return 0;
+}
+
+uint32_t status(struct gamePlayer player, struct company* companies, uint32_t arg_0, uint32_t arg_1, uint32_t arg_2, uint32_t arg_3, int turn) {
+	if (player.key != arg_0) {
+		return ERR_KEY;
+	} else if(arg_1 != PURCHASE && arg_1 != SALE) {
+		return ERR_CODE;
+	} else if(player.count >= 5) {
+		return ERR_REQ;
+	} else if(arg_2 < 0 || arg_2 > COMPANY_NUM -1) {
+		return ERR_ID;
+	} else {
+		//response[request[2]*2+3] = request[3];
+		int k,j;
+		if(arg_1 == PURCHASE) {
+			printf("player budget: %u ticket he wants to buy: %u quantity: %u its cost: %u", player.budget[turn], arg_2, arg_3, companies[arg_2].price);
+			k = arg_3*companies[arg_2].price;
+			for(j=0;j<COMPANY_NUM;j++) {
+				k += (player.purchase[j] - player.sale[j]) * companies[j].price;
+			}
+			if(player.budget[turn] <= k) {
+				return ERR_PUR;
+			} else {
+				return ACCEPT;
+			}
+		} else {
+			printf("player budget: %u ticket he wants to sell: %u quantity: %u its cost: %u", player.budget[turn], arg_2, arg_3, companies[arg_2].price);
+			if(arg_3 > player.tickets[arg_2]+player.purchase[arg_2]-player.sale[arg_2]) {
+				return ERR_SAL;
+			} else {
+				return ACCEPT;
+			}
+		}
+	}
 }
 
 int makesock(char *service) {
