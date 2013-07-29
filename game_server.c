@@ -142,16 +142,22 @@ int main(int argc, char *argv[]) {
 						}
 
 						response[1] = status(players[i-1], companies, request[0], request[1], request[2], request[3], turn);
-						printf("response code for user %d is %x\n", i-1, response[1]);
+						//printf("response code for user %d is %x\n", i-1, response[1]);
 
 						if (response[1] == ACCEPT) {
 							if(request[1] == PURCHASE) {
 								players[i-1].purchase[request[2]] += request[3];
+								printf("purchasing company id: %d (price: %d) quantity: %d\n",request[2], companies[request[2]].price, request[3]);
 							} else {
 								players[i-1].sale[request[2]] += request[3];
+								printf("selling company id: %d (price: %d) quantity: %d\n",request[2], companies[request[2]].price, request[3]);
 							}
-						} else if (response[1] == ERR_PUR || response[1] == ERR_SAL || response[1] == ACCEPT) {
+						} else if (response[1] == ERR_PUR) {
 							response[request[2]*2+3] = request[3];
+							printf("!ERROR in purchasing company id: %d (price: %d) quantity: %d\nYour current budget is %d\n\n",request[2], companies[request[2]].price, request[3], players[i-1].budget[turn]);
+						} else if (response[1] == ERR_SAL) {
+							response[request[2]*2+3] = request[3];
+							printf("!ERROR in selling company id: %d (price: %d) quantity: %d\nYou only have %d tickets\n\n",request[2], companies[request[2]].price, request[3], players[i-1].tickets[request[2]]);
 						}
 
 						for (k=0; k<22; k++) {
@@ -274,7 +280,7 @@ int main(int argc, char *argv[]) {
 		for (i=1; i<USER_NUM+1; i++) {
 			if (fd[i] != (-1)) {
 				if (FD_ISSET(fd[i], &fdsets)) {
-					printf("fd[%d] ready for read\n", i);
+					//printf("fd[%d] ready for read\n", i);
 					for (k=0; k<4; k++) {
 						read(fd[i], &request[k], sizeof(request[k]));
 						request[k] = ntohl(request[k]);
@@ -287,25 +293,22 @@ int main(int argc, char *argv[]) {
 					}
 
 					response[1] = status(players[i-1], companies, request[0], request[1], request[2], request[3], turn);
-					printf("response code for user %d is %x\n", i-1, response[1]);
+					//printf("response code for user %d is %x\n", i-1, response[1]);
 
 					if (response[1] == ACCEPT) {
 						if(request[1] == PURCHASE) {
-							printf("USER %d: Valid purchase!\nticket id: %d quantity: %d", i-1, request[2], request[3]);
-							if (request[3] != 0) {
-								//printf("\n\n\n\n%d\n\n\n\n", request[3]);
-							}
-
 							players[i-1].purchase[request[2]] += request[3];
+							printf("purchasing company id: %d (price: %d) quantity: %d\n",request[2], companies[request[2]].price, request[3]);
 						} else {
-							printf("USER %d: Valid sale!\nticket id: %d quantity: %d", i-1, request[2], request[3]);
-							if (request[3] != 0) {
-								printf("\n\n\n\n%d\n\n\n\n", request[3]);
-							}
 							players[i-1].sale[request[2]] += request[3];
+							printf("selling company id: %d (price: %d) quantity: %d\n",request[2], companies[request[2]].price, request[3]);
 						}
-					} else if (response[1] == ERR_PUR || response[1] == ERR_SAL || response[1] == ACCEPT) {
+					} else if (response[1] == ERR_PUR) {
 						response[request[2]*2+3] = request[3];
+						printf("!ERROR in purchasing company id: %d (price: %d) quantity: %d\nYour current budget is %d\n\n",request[2], companies[request[2]].price, request[3], players[i-1].budget[turn]);
+					} else if (response[1] == ERR_SAL) {
+						response[request[2]*2+3] = request[3];
+						printf("!ERROR in selling company id: %d (price: %d) quantity: %d\nYou only have %d tickets\n\n",request[2], companies[request[2]].price, request[3], players[i-1].tickets[request[2]]);
 					}
 
 					for (k=0; k<22; k++) {
@@ -334,10 +337,9 @@ uint32_t status(struct gamePlayer player, struct company* companies, uint32_t ar
 	} else if(arg_2 < 0 || arg_2 > COMPANY_NUM -1) {
 		return ERR_ID;
 	} else {
-		//response[request[2]*2+3] = request[3];
 		int k,j;
 		if(arg_1 == PURCHASE) {
-			printf("player budget: %u ticket he wants to buy: %u quantity: %u its cost: %u", player.budget[turn], arg_2, arg_3, companies[arg_2].price);
+			//printf("player budget: %u ticket he wants to buy: %u quantity: %u its cost: %u", player.budget[turn], arg_2, arg_3, companies[arg_2].price);
 			k = arg_3*companies[arg_2].price;
 			for(j=0;j<COMPANY_NUM;j++) {
 				k += (player.purchase[j] - player.sale[j]) * companies[j].price;
@@ -348,7 +350,7 @@ uint32_t status(struct gamePlayer player, struct company* companies, uint32_t ar
 				return ACCEPT;
 			}
 		} else {
-			printf("player budget: %u ticket he wants to sell: %u quantity: %u its cost: %u", player.budget[turn], arg_2, arg_3, companies[arg_2].price);
+			//printf("player budget: %u ticket he wants to sell: %u quantity: %u its cost: %u", player.budget[turn], arg_2, arg_3, companies[arg_2].price);
 			if(arg_3 > player.tickets[arg_2]+player.purchase[arg_2]-player.sale[arg_2]) {
 				return ERR_SAL;
 			} else {
