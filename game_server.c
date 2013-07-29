@@ -152,6 +152,7 @@ int main(int argc, char *argv[]) {
 								players[i-1].sale[request[2]] += request[3];
 								printf("selling company id: %d (price: %d) quantity: %d\n",request[2], companies[request[2]].price, request[3]);
 							}
+							response[request[2]*2+3] = request[3];
 						} else if (response[1] == ERR_PUR) {
 							response[request[2]*2+3] = request[3];
 							printf("!ERROR in purchasing company id: %d (price: %d) quantity: %d\nYour current budget is %d\n\n",request[2], companies[request[2]].price, request[3], players[i-1].budget[turn]);
@@ -303,6 +304,7 @@ int main(int argc, char *argv[]) {
 							players[i-1].sale[request[2]] += request[3];
 							printf("selling company id: %d (price: %d) quantity: %d\n",request[2], companies[request[2]].price, request[3]);
 						}
+						response[request[2]*2+3] = request[3];
 					} else if (response[1] == ERR_PUR) {
 						response[request[2]*2+3] = request[3];
 						printf("!ERROR in purchasing company id: %d (price: %d) quantity: %d\nYour current budget is %d\n\n",request[2], companies[request[2]].price, request[3], players[i-1].budget[turn]);
